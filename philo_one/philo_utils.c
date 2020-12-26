@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/15 18:12:12 by jiandre           #+#    #+#             */
-/*   Updated: 2020/12/15 22:08:30 by jiandre          ###   ########.fr       */
+/*   Updated: 2020/12/26 17:19:37 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void				ft_putnbr_fd(long n, int fd)
 void	print(char *str, int nbr, char *str2)
 {
 	pthread_mutex_lock(&print_mutex);
-	ft_putnbr_fd(get_time(), 1);
+	ft_putnbr_fd(get_time() - start_time, 1);
 	write(1, " ", 1);
 	write(1, str, ft_strlen(str));
 	if (nbr)

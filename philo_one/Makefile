@@ -6,15 +6,15 @@
 #    By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/15 18:58:18 by jiandre           #+#    #+#              #
-#    Updated: 2020/12/15 19:01:27 by jiandre          ###   ########.fr        #
+#    Updated: 2020/12/26 16:07:50 by jiandre          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME=philo_one
 
-OBJ_FILES = philo_one.o philo_utils.o
+OBJ_FILES = philo_one.o philo_utils.o philo_life.o
 
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra
 
 all: $(NAME)
 
