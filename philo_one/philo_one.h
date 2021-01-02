@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/15 17:44:13 by jiandre           #+#    #+#             */
-/*   Updated: 2020/12/26 17:18:39 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/02 21:52:41 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "string.h"
 #include <pthread.h>
+#include <stdbool.h>
 
 typedef		pthread_t		*t_philos;
 typedef		pthread_mutex_t	*t_forks;
@@ -23,6 +24,7 @@ pthread_mutex_t				print_mutex;
 t_philos					philos;
 t_forks						forks;
 long						start_time;
+bool						live;
 
 struct						philo_data
 {
@@ -36,7 +38,7 @@ struct						philo_data
 struct philo_data	phl_cfg;
 
 size_t						ft_strlen(const char *s);
-void						print(char *str, int nbr, char *str2);
+void						print(int nbr, char *str2);
 int							ft_atoi(char *str_nbr);
 void						ft_putnbr_fd(long n, int fd);
 int							get_time(void);
