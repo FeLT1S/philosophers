@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/09 17:02:15 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/02 19:12:02 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/03 18:49:27 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,9 @@ int		main(int ac, char *av[])
 {
 	pthread_mutex_init(&print_mutex, NULL);
 	if (ac < 5 || ac > 6)
-		print(0, "Too many or low arguments");
+		print(0, "Too many or low arguments", true);
 	else if ((init_data(ac, av)))
-		print(0, "Arguments not right");
+		print(0, "Arguments not right", true);
 	else
 		thread_init(&phl_cfg);
 	return(0);

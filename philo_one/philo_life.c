@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/26 15:56:42 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/02 22:08:00 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/03 19:34:40 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,27 +26,42 @@ void	ft_sleep(int time, int phl_live_tm)
 		usleep(100);
 }
 
-void	lock_fork(const int l_fork, const int r_fork)
+void	lock_fork(const int l_fork, const int r_fork, const int i, int live_tm)
 {
-	if (l_fork > r_fork)
-	{
-		pthread_mutex_lock(&forks[r_fork]);
-		pthread_mutex_lock(&forks[l_fork]);
-	}
-	else
-	{
-		pthread_mutex_lock(&forks[l_fork]);
-		pthread_mutex_lock(&forks[r_fork]);
-	}
-}
+	bool	l_taken;
+	bool	r_taken;
 
-bool	phl_dstr(int numb)
-{
-	int i;
-
-	i = 0;
-	print(numb + 1, "died");
-	return (false);
+	l_taken = false;
+	r_taken = false;
+	while (live)
+	{
+		if (!l_taken)
+		{
+			pthread_mutex_lock(&fork_st[l_fork]);
+			if (!(forks[l_fork]))
+			{
+				forks[l_fork] = true;
+				l_taken = true;
+				print(i + 1, "has taken a fork", true);
+			}
+			pthread_mutex_unlock(&fork_st[l_fork]);
+		}
+		if (!r_taken)
+		{
+			pthread_mutex_lock(&fork_st[r_fork]);
+			if (!(forks[r_fork]))
+			{
+				forks[r_fork] = true;
+				r_taken = true;
+				print(i + 1, "has taken a fork", true);
+			}
+			pthread_mutex_unlock(&fork_st[r_fork]);
+		}
+		if (l_taken && r_taken)
+			break;
+		if (get_time() - live_tm >= phl_cfg.tm_to_die)
+			print(i + 1, "died", live = false);
+	}
 }
 
 void	*philo(void *data)
@@ -59,38 +74,40 @@ void	*philo(void *data)
 	phl_live_tm = get_time();
 	while (live)
 	{
-		print(i + 1, "is thinking");
+		print(i + 1, "is thinking", true);
 		if (get_time() - phl_live_tm >= phl_cfg.tm_to_die)
 		{
-			phl_dstr(i);
-			live = false;
+			print(i + 1, "died", live = false);
 			break;
 		}
-		lock_fork(l_fork, r_fork);
+		if (l_fork < r_fork)
+			lock_fork(l_fork, r_fork, i, phl_live_tm);
+		else
+			lock_fork(r_fork, l_fork, i, phl_live_tm);
 		if (get_time() - phl_live_tm >= phl_cfg.tm_to_die)
 		{
-			phl_dstr(i);
-			live = false;
+			print(i + 1, "died", live = false);
 			break;
-		}	
-		print(i + 1, "has taken a fork");
+		}
+		print(i + 1, "is eating", true);
 		phl_live_tm = get_time();
-		print(i + 1, "is eating");
 		ft_sleep(phl_cfg.tm_to_eat, phl_live_tm);
 		if (get_time() - phl_live_tm >= phl_cfg.tm_to_die)
 		{
-			phl_dstr(i);
-			live = false;
+			print(i + 1, "died", live = false);
 			break;
 		}
-		pthread_mutex_unlock(&forks[l_fork]);
-		pthread_mutex_unlock(&forks[r_fork]);
-		print(i + 1, "is sleeping");
+		pthread_mutex_lock(&fork_st[l_fork]);
+		forks[l_fork] = false;
+		pthread_mutex_unlock(&fork_st[l_fork]);
+		pthread_mutex_lock(&fork_st[r_fork]);
+		forks[r_fork] = false;
+		pthread_mutex_unlock(&fork_st[r_fork]);
+		print(i + 1, "is sleeping", true);
 		ft_sleep(phl_cfg.tm_to_sleep, phl_live_tm);
 		if (get_time() - phl_live_tm >= phl_cfg.tm_to_die)
 		{
-			phl_dstr(i);
-			live = false;
+			print(i + 1, "died", live = false);
 			break;
 		}
 	}
@@ -102,19 +119,22 @@ void	thread_init(struct philo_data *phl_cfg)
 	int		i;
 
 	philos = malloc(sizeof(pthread_t) * phl_cfg->nbr_of_philos);
-	forks = malloc(sizeof(pthread_mutex_t) * phl_cfg->nbr_of_philos);
+	fork_st = malloc(sizeof(pthread_mutex_t) * phl_cfg->nbr_of_philos);
+	forks = malloc(sizeof(bool) * phl_cfg->nbr_of_philos);
+	memset(forks, 0, sizeof(bool) * phl_cfg->nbr_of_philos);
 	start_time = get_time();
 	i = 0;
 	live = true;
 	while(i < phl_cfg->nbr_of_philos)
 	{
-		pthread_mutex_init(&forks[i], NULL);
+		pthread_mutex_init(&fork_st[i], NULL);
 		i++;
 	}
 	i = 0;
 	while(i < phl_cfg->nbr_of_philos)
 	{
 		pthread_create(&philos[i], NULL, philo, (void*)(long)i);
+		pthread_detach(philos[i]);
 		i++;
 	}
 	while (live)
