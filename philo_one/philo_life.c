@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/26 15:56:42 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/03 19:34:40 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/04 18:26:21 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,40 +28,30 @@ void	ft_sleep(int time, int phl_live_tm)
 
 void	lock_fork(const int l_fork, const int r_fork, const int i, int live_tm)
 {
-	bool	l_taken;
-	bool	r_taken;
-
-	l_taken = false;
-	r_taken = false;
-	while (live)
+	while (forks[l_fork])
 	{
-		if (!l_taken)
+	 	if (get_time() - live_tm > phl_cfg.tm_to_die)
 		{
-			pthread_mutex_lock(&fork_st[l_fork]);
-			if (!(forks[l_fork]))
-			{
-				forks[l_fork] = true;
-				l_taken = true;
-				print(i + 1, "has taken a fork", true);
-			}
-			pthread_mutex_unlock(&fork_st[l_fork]);
-		}
-		if (!r_taken)
-		{
-			pthread_mutex_lock(&fork_st[r_fork]);
-			if (!(forks[r_fork]))
-			{
-				forks[r_fork] = true;
-				r_taken = true;
-				print(i + 1, "has taken a fork", true);
-			}
-			pthread_mutex_unlock(&fork_st[r_fork]);
-		}
-		if (l_taken && r_taken)
-			break;
-		if (get_time() - live_tm >= phl_cfg.tm_to_die)
 			print(i + 1, "died", live = false);
+			break;
+		}
 	}
+	pthread_mutex_lock(&fork_st[l_fork]);
+	forks[l_fork] = true;
+	print(i + 1, "has taken a fork", true);
+	pthread_mutex_unlock(&fork_st[l_fork]);
+	while (forks[r_fork])
+	{
+		if (get_time() - live_tm > phl_cfg.tm_to_die)
+		{
+	 		print(i + 1, "died", live = false);
+			break;
+		}
+	}
+	pthread_mutex_lock(&fork_st[r_fork]);
+	forks[r_fork] = true;
+	print(i + 1, "has taken a fork", true);
+	pthread_mutex_unlock(&fork_st[r_fork]);
 }
 
 void	*philo(void *data)
@@ -75,7 +65,7 @@ void	*philo(void *data)
 	while (live)
 	{
 		print(i + 1, "is thinking", true);
-		if (get_time() - phl_live_tm >= phl_cfg.tm_to_die)
+		if (get_time() - phl_live_tm > phl_cfg.tm_to_die)
 		{
 			print(i + 1, "died", live = false);
 			break;
@@ -84,7 +74,7 @@ void	*philo(void *data)
 			lock_fork(l_fork, r_fork, i, phl_live_tm);
 		else
 			lock_fork(r_fork, l_fork, i, phl_live_tm);
-		if (get_time() - phl_live_tm >= phl_cfg.tm_to_die)
+		if (get_time() - phl_live_tm > phl_cfg.tm_to_die)
 		{
 			print(i + 1, "died", live = false);
 			break;
@@ -92,20 +82,32 @@ void	*philo(void *data)
 		print(i + 1, "is eating", true);
 		phl_live_tm = get_time();
 		ft_sleep(phl_cfg.tm_to_eat, phl_live_tm);
-		if (get_time() - phl_live_tm >= phl_cfg.tm_to_die)
+		if (get_time() - phl_live_tm > phl_cfg.tm_to_die)
 		{
 			print(i + 1, "died", live = false);
 			break;
 		}
-		pthread_mutex_lock(&fork_st[l_fork]);
-		forks[l_fork] = false;
-		pthread_mutex_unlock(&fork_st[l_fork]);
-		pthread_mutex_lock(&fork_st[r_fork]);
-		forks[r_fork] = false;
-		pthread_mutex_unlock(&fork_st[r_fork]);
+		if (l_fork < r_fork)
+		{
+			pthread_mutex_lock(&fork_st[l_fork]);
+			forks[l_fork] = false;
+			pthread_mutex_unlock(&fork_st[l_fork]);
+			pthread_mutex_lock(&fork_st[r_fork]);
+			forks[r_fork] = false;
+			pthread_mutex_unlock(&fork_st[r_fork]);
+		}
+		else
+		{
+			pthread_mutex_lock(&fork_st[r_fork]);
+			forks[r_fork] = false;
+			pthread_mutex_unlock(&fork_st[r_fork]);
+			pthread_mutex_lock(&fork_st[l_fork]);
+			forks[l_fork] = false;
+			pthread_mutex_unlock(&fork_st[l_fork]);
+		}
 		print(i + 1, "is sleeping", true);
 		ft_sleep(phl_cfg.tm_to_sleep, phl_live_tm);
-		if (get_time() - phl_live_tm >= phl_cfg.tm_to_die)
+		if (get_time() - phl_live_tm > phl_cfg.tm_to_die)
 		{
 			print(i + 1, "died", live = false);
 			break;
