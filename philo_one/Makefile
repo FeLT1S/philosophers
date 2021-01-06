@@ -6,7 +6,7 @@
 #    By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/15 18:58:18 by jiandre           #+#    #+#              #
-#    Updated: 2021/01/03 18:49:55 by jiandre          ###   ########.fr        #
+#    Updated: 2021/01/06 20:47:50 by jiandre          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME=philo_one
 
 OBJ_FILES = philo_one.o philo_utils.o philo_life.o
 
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -O0
 
 all: $(NAME)
 

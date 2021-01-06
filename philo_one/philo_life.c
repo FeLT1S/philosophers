@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/26 15:56:42 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/04 18:26:21 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/06 21:00:27 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,36 +23,50 @@ void	ft_sleep(int time, int phl_live_tm)
 	if (time > phl_cfg.tm_to_die - get_time() + phl_live_tm)
 		time = phl_cfg.tm_to_die - get_time() + phl_live_tm;
 	while (get_time() - start < time)
-		usleep(100);
+		usleep(50);
+}
+
+void	check_die(int live_tm, int i)
+{
+	if (get_time() - live_tm > phl_cfg.tm_to_die)
+	{
+		print(i + 1, "died", false);
+		live = false;
+	}
 }
 
 void	lock_fork(const int l_fork, const int r_fork, const int i, int live_tm)
 {
-	while (forks[l_fork])
+	while (forks[l_fork] && live)
 	{
-	 	if (get_time() - live_tm > phl_cfg.tm_to_die)
-		{
-			print(i + 1, "died", live = false);
-			break;
-		}
+		check_die(live_tm, i);
+		usleep(50);
 	}
 	pthread_mutex_lock(&fork_st[l_fork]);
 	forks[l_fork] = true;
 	print(i + 1, "has taken a fork", true);
 	pthread_mutex_unlock(&fork_st[l_fork]);
-	while (forks[r_fork])
+	while (forks[r_fork] && live)
 	{
-		if (get_time() - live_tm > phl_cfg.tm_to_die)
-		{
-	 		print(i + 1, "died", live = false);
-			break;
-		}
+		check_die(live_tm, i);
+		usleep(50);
 	}
 	pthread_mutex_lock(&fork_st[r_fork]);
 	forks[r_fork] = true;
 	print(i + 1, "has taken a fork", true);
 	pthread_mutex_unlock(&fork_st[r_fork]);
 }
+
+void	unlock_fork(const int l_fork, const int r_fork)
+{
+		pthread_mutex_lock(&fork_st[r_fork]);
+		forks[r_fork] = false;
+		pthread_mutex_unlock(&fork_st[r_fork]);
+		pthread_mutex_lock(&fork_st[l_fork]);
+		forks[l_fork] = false;
+		pthread_mutex_unlock(&fork_st[l_fork]);
+}
+
 
 void	*philo(void *data)
 {
@@ -65,53 +79,19 @@ void	*philo(void *data)
 	while (live)
 	{
 		print(i + 1, "is thinking", true);
-		if (get_time() - phl_live_tm > phl_cfg.tm_to_die)
-		{
-			print(i + 1, "died", live = false);
-			break;
-		}
 		if (l_fork < r_fork)
 			lock_fork(l_fork, r_fork, i, phl_live_tm);
 		else
 			lock_fork(r_fork, l_fork, i, phl_live_tm);
-		if (get_time() - phl_live_tm > phl_cfg.tm_to_die)
-		{
-			print(i + 1, "died", live = false);
-			break;
-		}
+		check_die(phl_live_tm, i);
 		print(i + 1, "is eating", true);
 		phl_live_tm = get_time();
 		ft_sleep(phl_cfg.tm_to_eat, phl_live_tm);
-		if (get_time() - phl_live_tm > phl_cfg.tm_to_die)
-		{
-			print(i + 1, "died", live = false);
-			break;
-		}
-		if (l_fork < r_fork)
-		{
-			pthread_mutex_lock(&fork_st[l_fork]);
-			forks[l_fork] = false;
-			pthread_mutex_unlock(&fork_st[l_fork]);
-			pthread_mutex_lock(&fork_st[r_fork]);
-			forks[r_fork] = false;
-			pthread_mutex_unlock(&fork_st[r_fork]);
-		}
-		else
-		{
-			pthread_mutex_lock(&fork_st[r_fork]);
-			forks[r_fork] = false;
-			pthread_mutex_unlock(&fork_st[r_fork]);
-			pthread_mutex_lock(&fork_st[l_fork]);
-			forks[l_fork] = false;
-			pthread_mutex_unlock(&fork_st[l_fork]);
-		}
+		unlock_fork(l_fork, r_fork);
+		check_die(phl_live_tm, i);
 		print(i + 1, "is sleeping", true);
 		ft_sleep(phl_cfg.tm_to_sleep, phl_live_tm);
-		if (get_time() - phl_live_tm > phl_cfg.tm_to_die)
-		{
-			print(i + 1, "died", live = false);
-			break;
-		}
+		check_die(phl_live_tm, i);
 	}
 	return (NULL);
 }
@@ -120,9 +100,6 @@ void	thread_init(struct philo_data *phl_cfg)
 {
 	int		i;
 
-	philos = malloc(sizeof(pthread_t) * phl_cfg->nbr_of_philos);
-	fork_st = malloc(sizeof(pthread_mutex_t) * phl_cfg->nbr_of_philos);
-	forks = malloc(sizeof(bool) * phl_cfg->nbr_of_philos);
 	memset(forks, 0, sizeof(bool) * phl_cfg->nbr_of_philos);
 	start_time = get_time();
 	i = 0;
@@ -137,6 +114,8 @@ void	thread_init(struct philo_data *phl_cfg)
 	{
 		pthread_create(&philos[i], NULL, philo, (void*)(long)i);
 		pthread_detach(philos[i]);
+		if (i % 2)
+			usleep(200);
 		i++;
 	}
 	while (live)

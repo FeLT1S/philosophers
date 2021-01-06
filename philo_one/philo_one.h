@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/15 17:44:13 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/03 16:19:52 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/06 20:47:30 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,17 @@
 #include <pthread.h>
 #include <stdbool.h>
 
-typedef		pthread_t		*t_philos;
-typedef		pthread_mutex_t	*t_fork_st;
+#define MAX_PHLS 200
+
+typedef		pthread_t		t_philos;
+typedef		pthread_mutex_t	t_fork_st;
 
 pthread_mutex_t				print_mutex;
-t_philos					philos;
-t_fork_st					fork_st;
+t_philos					philos[MAX_PHLS];
+t_fork_st					fork_st[MAX_PHLS];
 long						start_time;
 bool						live;
-bool						*forks;
+bool						forks[MAX_PHLS];
 
 struct						philo_data
 {
@@ -44,5 +46,6 @@ int							ft_atoi(char *str_nbr);
 void						ft_putnbr_fd(long n);
 int							get_time(void);
 void						thread_init(struct philo_data *phl_cfg);
+int							ft_itoa(long n, char *str);
 
 #endif
