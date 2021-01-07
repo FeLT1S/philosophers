@@ -6,13 +6,13 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/15 18:12:12 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/08 19:26:12 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/08 20:54:08 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <sys/time.h>
-#include "philo_one.h"
+#include "philo_two.h"
 
 int					get_time(void)
 {

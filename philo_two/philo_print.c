@@ -6,12 +6,12 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/07 17:36:58 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/08 17:50:59 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/08 20:53:47 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
-#include "philo_one.h"
+#include "philo_two.h"
 
 static void				*ft_memcpy(void *dst, const void *src, size_t n)
 {
@@ -95,7 +95,7 @@ void					print(int nbr, char *str2, bool stt)
 		return ;
 	i = 0;
 	memset(buff, 0, 500);
-	pthread_mutex_lock(&g_print_mutex);
+	sem_wait(g_print_lock);
 	i += ft_itoa(get_time() - g_start_time, buff + i);
 	if (nbr)
 	{
@@ -108,5 +108,5 @@ void					print(int nbr, char *str2, bool stt)
 		buff[i++] = '\n';
 	}
 	write(1, buff, ft_strlen(buff));
-	pthread_mutex_unlock(&g_print_mutex);
+	sem_post(g_print_lock);
 }

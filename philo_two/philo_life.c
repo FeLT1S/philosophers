@@ -6,11 +6,11 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/26 15:56:42 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/08 19:27:26 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/08 21:15:41 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_one.h"
+#include "philo_two.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,24 +26,20 @@ void	*exit_thread(const int phl_numb)
 void	*philo_life(void *data)
 {
 	const int	phl_numb = (int)data;
-	const int	l_fork = take_lfork(phl_numb);
-	const int	r_fork = take_rfork(phl_numb);
 	int			phl_eated;
 
 	sleep_untill(g_start_time);
-	if ((phl_numb % 2))
-		usleep(100);
 	g_live_tm[phl_numb] = get_time();
 	phl_eated = 0;
 	while (g_live)
 	{
 		print(phl_numb + 1, "is thinking", g_live);
-		lock_fork(l_fork, r_fork, phl_numb);
+		lock_fork(phl_numb);
 		print(phl_numb + 1, "is eating", g_live);
 		phl_eated++;
 		g_live_tm[phl_numb] = get_time();
 		ft_sleep(g_phl_cfg.tm_to_eat);
-		unlock_fork(l_fork, r_fork);
+		sem_post(g_forks);
 		if (phl_eated >= g_phl_cfg.each_must_eat && g_phl_cfg.each_must_eat > 0)
 			return (exit_thread(phl_numb));
 		print(phl_numb + 1, "is sleeping", g_live);
@@ -61,9 +57,12 @@ void	clear_threads(void)
 	while (i < g_phl_cfg.nbr_of_philos)
 	{
 		pthread_join(g_philos[i], NULL);
-		pthread_mutex_destroy(&g_fork[i]);
 		i++;
 	}
+	sem_close(g_forks);
+	sem_close(g_print_lock);
+	sem_unlink("print");
+	sem_unlink("forks");
 }
 
 void	check_death(void)
@@ -97,18 +96,16 @@ void	thread_init(void)
 	int		i;
 
 	memset(g_live_tm, 0, sizeof(int) * g_phl_cfg.nbr_of_philos);
-	g_start_time = get_time() + 1000;
-	i = 0;
+	g_start_time = get_time();
 	g_live = true;
-	while (i < g_phl_cfg.nbr_of_philos)
-	{
-		pthread_mutex_init(&g_fork[i], NULL);
-		g_run[i] = true;
-		i++;
-	}
+	sem_unlink("print");
+	sem_unlink("forks");
+	g_forks = sem_open("forks", O_CREAT, 0644, g_phl_cfg.nbr_of_philos / 2);
+	g_print_lock = sem_open("print", O_CREAT, 0644, 1);
 	i = 0;
 	while (i < g_phl_cfg.nbr_of_philos)
 	{
+		g_run[i] = true;
 		pthread_create(&g_philos[i], NULL, philo_life, (void*)(long)i);
 		i++;
 	}

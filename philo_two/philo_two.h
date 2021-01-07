@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_one.h                                        :+:      :+:    :+:   */
+/*   philo_two.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/15 17:44:13 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/08 19:26:22 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/08 21:01:04 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,15 @@
 # include "string.h"
 # include <pthread.h>
 # include <stdbool.h>
+# include <semaphore.h>
 
 # define MAX_PHLS 200
 
 typedef pthread_t			t_philos;
-typedef pthread_mutex_t		t_fork_st;
 
-pthread_mutex_t				g_print_mutex;
 t_philos					g_philos[MAX_PHLS];
-t_fork_st					g_fork[MAX_PHLS];
+sem_t						*g_forks;
+sem_t						*g_print_lock;
 long						g_start_time;
 bool						g_live;
 int							g_live_tm[MAX_PHLS];
@@ -46,11 +46,7 @@ int							ft_atoi(char *str_nbr);
 void						ft_putnbr_fd(long n);
 int							get_time(void);
 void						thread_init(void);
-int							take_lfork(int i);
-int							take_rfork(int i);
-void						lock_fork(const int l_fork, const int r_fork,
-								const int i);
-void						unlock_fork(const int l_fork, const int r_fork);
+void						lock_fork(const int i);
 void						check_die(int live_tm, int i);
 void						ft_sleep(int time);
 void						sleep_untill(int ms_stamp);

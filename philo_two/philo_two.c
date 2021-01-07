@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_one.c                                        :+:      :+:    :+:   */
+/*   philo_two.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/09 17:02:15 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/08 21:28:53 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/08 21:29:02 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "philo_one.h"
+#include "philo_two.h"
 #include <stdbool.h>
 #include <unistd.h>
 
@@ -47,7 +47,6 @@ int		init_data(int ac, char **av)
 
 int		main(int ac, char *av[])
 {
-	pthread_mutex_init(&g_print_mutex, NULL);
 	if (ac < 5 || ac > 6)
 		write(1, "Too many or low arguments\n", 27);
 	else if ((init_data(ac, av)))
