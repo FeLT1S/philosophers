@@ -6,13 +6,13 @@
 #    By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/15 18:58:18 by jiandre           #+#    #+#              #
-#    Updated: 2021/01/06 20:47:50 by jiandre          ###   ########.fr        #
+#    Updated: 2021/01/07 17:41:19 by jiandre          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME=philo_one
 
-OBJ_FILES = philo_one.o philo_utils.o philo_life.o
+OBJ_FILES = philo_one.o philo_utils.o philo_life.o philo_print.o philo_fork.o
 
 CFLAGS = -Wall -Wextra -O0
 
