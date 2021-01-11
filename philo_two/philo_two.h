@@ -6,12 +6,12 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/15 17:44:13 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/08 21:01:04 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/11 18:13:59 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_ONE_H
-# define PHILO_ONE_H
+#ifndef PHILO_TWO_H
+# define PHILO_TWO_H
 
 # include "string.h"
 # include <pthread.h>
@@ -22,7 +22,6 @@
 
 typedef pthread_t			t_philos;
 
-t_philos					g_philos[MAX_PHLS];
 sem_t						*g_forks;
 sem_t						*g_print_lock;
 long						g_start_time;

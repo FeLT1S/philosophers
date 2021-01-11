@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/26 15:56:42 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/10 20:50:02 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/11 18:10:20 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,11 @@
 #include <stdbool.h>
 #include <signal.h>
 
-void	exit_thread(const int phl_numb)
+void	exit_thread(int exit_code)
 {
 	g_live_tm = -1;
 	g_run = false;
-	kill(philo[phl_numb], 0);
+	exit(exit_code);
 }
 
 void	philo_life(void *data)
@@ -35,30 +35,45 @@ void	philo_life(void *data)
 	pthread_detach(check);
 	g_live_tm = get_time();
 	phl_eated = 0;
-	while (g_live)
+	while (true)
 	{
 		print(phl_numb + 1, "is thinking", g_live);
 		lock_fork(phl_numb);
 		print(phl_numb + 1, "is eating", g_live);
-		phl_eated++;
+		++phl_eated;
 		g_live_tm = get_time();
 		ft_sleep(g_phl_cfg.tm_to_eat);
 		sem_post(g_forks);
 		if (phl_eated >= g_phl_cfg.each_must_eat && g_phl_cfg.each_must_eat > 0)
-			exit_thread(phl_numb);
+			exit_thread(EX_FULL);
 		print(phl_numb + 1, "is sleeping", g_live);
 		ft_sleep(g_phl_cfg.tm_to_sleep);
 	}
-	exit_thread(phl_numb);
+	exit_thread(EX_UNDEFINDED);
 }
 
 void	clear_threads(void)
 {
 	int i;
+	int stt;
 
 	g_live = false;
+	waitpid(-1, &stt, WUNTRACED);
+	stt = stt >> 8;
 	i = 0;
-	waitpid(philo[i], NULL, 0);
+	if (stt == EX_FULL)
+	{
+		while (++i < g_phl_cfg.nbr_of_philos)
+		{
+			waitpid(-1, &stt, WUNTRACED);
+			if (stt == 1)
+				while (++i < g_phl_cfg.nbr_of_philos)
+					kill(g_philo[i], 0);
+		}
+	}
+	else
+		while (++i < g_phl_cfg.nbr_of_philos)
+			kill(g_philo[i], 0);
 	sem_close(g_forks);
 	sem_close(g_print_lock);
 	sem_unlink("print");
@@ -67,23 +82,17 @@ void	clear_threads(void)
 
 void	*check_death(void *i_addr)
 {
-	bool	run;
 	const	int i = (int)i_addr;
-	int		philo_numb;
 
-	run = true;
-	while (run)
+	while (true)
 	{
-		run = false;	
 		if (get_time() - g_live_tm > g_phl_cfg.tm_to_die)
 		{
-			print(i + 1, "died", g_live);
-			philo_numb = 0;
-			while(i < g_phl_cfg.nbr_of_philos)
-				kill(philo[philo_numb++], 0);
+			print(i + 1, "died", false);
+			exit(1);
 			break ;
 		}
-		run = run || g_run;
+		usleep(100);
 	}
 	return (NULL);
 }
@@ -92,7 +101,7 @@ void	thread_init(void)
 {
 	int		i;
 
-	g_start_time = get_time();
+	g_start_time = get_time() + 1000;
 	g_live = true;
 	sem_unlink("print");
 	sem_unlink("forks");
@@ -101,9 +110,8 @@ void	thread_init(void)
 	i = 0;
 	while (i < g_phl_cfg.nbr_of_philos)
 	{
-		g_run = true;
-		philo[i] = fork();
-		if (philo[i] == 0)
+		g_philo[i] = fork();
+		if (g_philo[i] == 0)
 			philo_life((void*)(long)i);
 		i++;
 	}

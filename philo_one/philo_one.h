@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/15 17:44:13 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/08 19:26:22 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/11 18:15:57 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ typedef pthread_t			t_philos;
 typedef pthread_mutex_t		t_fork_st;
 
 pthread_mutex_t				g_print_mutex;
-t_philos					g_philos[MAX_PHLS];
 t_fork_st					g_fork[MAX_PHLS];
 long						g_start_time;
 bool						g_live;

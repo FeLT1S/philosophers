@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/26 15:56:42 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/08 21:15:41 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/11 18:14:28 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void	*philo_life(void *data)
 	return (exit_thread(phl_numb));
 }
 
-void	clear_threads(void)
+void	clear_threads(t_philos *philos)
 {
 	int i;
 
@@ -56,7 +56,7 @@ void	clear_threads(void)
 	i = 0;
 	while (i < g_phl_cfg.nbr_of_philos)
 	{
-		pthread_join(g_philos[i], NULL);
+		pthread_join(philos[i], NULL);
 		i++;
 	}
 	sem_close(g_forks);
@@ -65,7 +65,7 @@ void	clear_threads(void)
 	sem_unlink("forks");
 }
 
-void	check_death(void)
+void	check_death(t_philos *philos)
 {
 	int		i;
 	bool	run;
@@ -88,15 +88,16 @@ void	check_death(void)
 			i++;
 		}
 	}
-	clear_threads();
+	clear_threads(philos);
 }
 
 void	thread_init(void)
 {
-	int		i;
+	int			i;
+	t_philos	philos[MAX_PHLS];
 
 	memset(g_live_tm, 0, sizeof(int) * g_phl_cfg.nbr_of_philos);
-	g_start_time = get_time();
+	g_start_time = get_time() + 1000;
 	g_live = true;
 	sem_unlink("print");
 	sem_unlink("forks");
@@ -106,8 +107,8 @@ void	thread_init(void)
 	while (i < g_phl_cfg.nbr_of_philos)
 	{
 		g_run[i] = true;
-		pthread_create(&g_philos[i], NULL, philo_life, (void*)(long)i);
+		pthread_create(&philos[i], NULL, philo_life, (void*)(long)i);
 		i++;
 	}
-	check_death();
+	check_death(philos);
 }

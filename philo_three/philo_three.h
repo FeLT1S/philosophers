@@ -6,12 +6,12 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/15 17:44:13 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/10 20:47:54 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/11 18:09:41 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_ONE_H
-# define PHILO_ONE_H
+#ifndef PHILO_THREE_H
+# define PHILO_THREE_H
 
 # include "string.h"
 # include <pthread.h>
@@ -22,7 +22,7 @@
 
 typedef pthread_t			t_philos;
 
-pid_t						philo[MAX_PHLS];
+pid_t						g_philo[MAX_PHLS];
 sem_t						*g_forks;
 sem_t						*g_print_lock;
 long						g_start_time;
@@ -37,6 +37,12 @@ struct						s_philo_data
 	int						tm_to_eat;
 	int						tm_to_sleep;
 	int						each_must_eat;
+};
+
+enum	e_exit_code{
+	EX_UNDEFINDED,
+	EX_DIED,
+	EX_FULL
 };
 
 struct s_philo_data			g_phl_cfg;

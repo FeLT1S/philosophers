@@ -6,7 +6,7 @@
 /*   By: jiandre <jiandre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/07 17:36:58 by jiandre           #+#    #+#             */
-/*   Updated: 2021/01/10 18:37:06 by jiandre          ###   ########.fr       */
+/*   Updated: 2021/01/11 17:46:15 by jiandre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,8 +91,6 @@ void					print(int nbr, char *str2, bool stt)
 	int		i;
 	int		len;
 
-	if (stt == false)
-		return ;
 	i = 0;
 	memset(buff, 0, 500);
 	sem_wait(g_print_lock);
@@ -108,5 +106,6 @@ void					print(int nbr, char *str2, bool stt)
 		buff[i++] = '\n';
 	}
 	write(1, buff, ft_strlen(buff));
-	sem_post(g_print_lock);
+	if (stt)
+		sem_post(g_print_lock);
 }
